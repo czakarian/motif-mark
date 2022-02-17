@@ -12,25 +12,9 @@ import re
 
 iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt'}
 
-def find_motif(seq, motif):
-    """This function takes a sequence string and a motif string and returns a list of the positions of that motif in the sequence"""
-    regex_str = ""
-    positions = []
-    for c in motif:
-        if c in iupac_symbols:
-            regex_str += "[" + iupac_symbols[c] + "]"
-        else:
-            regex_str += c
-    for match in re.finditer(regex_str, seq):
-        positions.append(match.start())
-    return positions 
-
-#print(find_motif('acgtcgdkdfkjdfktcgtsdfkjjsacgcfkdjfajjt', 'wcgy'))
-
 class Exon:
     def __init__(self, start, end):
-        '''This is how an Exon is made.'''
-        
+        '''This is how an Exon is made.'''       
         self.start = start
         self.end = end 
 
@@ -110,6 +94,24 @@ args = get_args()
 fasta= args.fasta
 motifs = args.motifs
 
+# turn multiline fasta sequences in one-liners
+ol_output = "OL_" + fasta
+Bioinfo.oneLineFasta(fasta, ol_output)
+
+# will contain sequence objects, what should key be?
+seq_objs = []
+header = ""
+with open(ol_output, "r") as fr:
+    for line in fr:
+        line = line.strip()
+        if line[0] == ">":
+            header = line
+        else:
+            seq_objs.append(Sequence(header, line))
+
+for i in seq_objs:
+    print(i.header)
+
 # read in list of motifs
 motif_objs = []
 with open(motifs, "r") as fr:
@@ -119,23 +121,4 @@ with open(motifs, "r") as fr:
 
 for i in motif_objs:
     print(i.motif_regex)
-
-
-# turn multiline fasta sequences in one-liners
-ol_output = "OL_" + fasta
-Bioinfo.oneLineFasta(fasta, ol_output)
-
-
-
-
-# will contain sequence objects, what should key be?
-seq_dict = {}
-header = ""
-with open(ol_output, "r") as fr:
-    for line in fr:
-        line = line.strip()
-        if line[0] == ">":
-            header = line
-            seq_dict[header] = ""
-        else:
-            seq_dict[header] = line
+    print(i.find_motif(seq_objs[0]))

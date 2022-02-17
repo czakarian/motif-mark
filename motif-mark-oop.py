@@ -1,12 +1,31 @@
 #!/usr/bin/env python
 
-""" This program  """
+"""Given a a list of gene sequences and motifs, this program will produce figures to visualize 
+the locations of each motif throughout a gene sequence. """
 
 import argparse
 from curses.ascii import islower
 import Bioinfo
 import cairo
 import itertools
+import re 
+
+iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt'}
+
+def find_motif(seq, motif):
+    """This function takes a sequence string and a motif string and returns a list of the positions of that motif in the sequence"""
+    regex_str = ""
+    positions = []
+    for c in motif:
+        if c in iupac_symbols:
+            regex_str += "[" + iupac_symbols[c] + "]"
+        else:
+            regex_str += c
+    for match in re.finditer(regex_str, seq):
+        positions.append(match.start())
+    return positions 
+
+#print(find_motif('acgtcgdkdfkjdfktcgtsdfkjjsacgcfkdjfajjt', 'wcgy'))
 
 class Exon:
     def __init__(self, start, end):
@@ -22,29 +41,29 @@ class Exon:
         return self.end
 
 class Motif:
-    def __init__(self, seq):
+    def __init__(self, motif):
         '''This is how a Motif is made.'''
 
-        self.seq = seq.lower()
-        self.possible_motifs = set()
-        self.__generate_motifs()
+        self.motif = motif.lower()
+        self.motif_regex = self.__get_regex()
+        self.color = 'red'
 
-    def __generate_motifs(self):
-        y_indices = [] # will store the indices in motif string where pyrimidines (y) are located
-        for i,char in enumerate(self.seq):
-            if(char == "y"):
-                y_indices.append(i)
-        # generate a list of the possible 'c' and 't' combinations to use in place of 'y'
-        combos = list(itertools.product("ct", repeat=len(y_indices))) 
+    def __get_regex(self):
+        """This function takes takes the motif string and generates the regex expression to search for it."""
+        regex_str = ""
+        for c in self.motif:
+            if c in iupac_symbols:
+                regex_str += "[" + iupac_symbols[c] + "]"
+            else:
+                regex_str += c
+        return regex_str
 
-        for c in combos:
-            seq_list = list(self.seq)
-            for i,n in enumerate(y_indices):
-                seq_list[n] = c[i]
-            self.possible_motifs.add("".join(seq_list))
-
-    def get_motifs(self):
-        return self.possible_motifs
+    def find_motif(self, Sequence):
+        """This function takes a Sequence object and returns a list of the positions of the motif in the given sequence."""
+        positions = []
+        for match in re.finditer(self.motif_regex, Sequence.sequence):
+            positions.append(match.start())
+        return positions 
 
 class Sequence:
     def __init__(self, header, sequence):
@@ -52,9 +71,9 @@ class Sequence:
 
         self.header = header
         self.sequence = sequence
-        self.exon = ""
+        self.exon_coords = self.find_exon()
     
-    def __find_exon(self):
+    def find_exon(self):
         start = 0
         end = 0 
         start_found = False
@@ -70,16 +89,7 @@ class Sequence:
                 end_found = True       
         self.exon = Exon(start, end)
 
-    def get_exon(self):
-        return self.exon
-
-    def get_sequence(self):
-        return self.sequence
-
-    def get_header(self):
-        return self.sequence
-
-class MotifImage:
+class Draw:
     def __init__(self):
         ''''''
         self.seqs = []
@@ -108,12 +118,15 @@ with open(motifs, "r") as fr:
         motif_objs.append(Motif(line))
 
 for i in motif_objs:
-    print(len(i.get_motifs()))
+    print(i.motif_regex)
 
 
 # turn multiline fasta sequences in one-liners
 ol_output = "OL_" + fasta
 Bioinfo.oneLineFasta(fasta, ol_output)
+
+
+
 
 # will contain sequence objects, what should key be?
 seq_dict = {}

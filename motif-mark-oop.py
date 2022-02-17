@@ -4,6 +4,7 @@
 the locations of each motif throughout a gene sequence. """
 
 import argparse
+from asyncio import start_server
 from curses.ascii import islower
 import Bioinfo
 import cairo
@@ -55,6 +56,8 @@ class Sequence:
 
         self.header = header
         self.sequence = sequence
+        self.exon_start = ""
+        self.exon_length = ""
         self.exon_coords = self.find_exon()
     
     def find_exon(self):
@@ -72,6 +75,8 @@ class Sequence:
                 end = i - 1
                 end_found = True       
         self.exon = Exon(start, end)
+        self.exon_start = start
+        self.exon_length = end - start 
 
 class Draw:
     def __init__(self):
@@ -122,3 +127,45 @@ with open(motifs, "r") as fr:
 for i in motif_objs:
     print(i.motif_regex)
     print(i.find_motif(seq_objs[0]))
+
+
+
+# draw 
+surface = cairo.SVGSurface("seq.svg", 1000, 1000)
+context = cairo.Context(surface)
+
+
+line_start_x = 50
+line_start_y = 100 
+
+for i in seq_objs:
+    seq_length = len(i.sequence)
+    exon_start = i.exon_start
+    exon_length = i.exon_length
+
+    #seq_length = 500
+    #exon_start = 100
+    #exon_length = 60
+
+    line_end_x = seq_length + line_start_x 
+    line_end_y = line_start_y 
+
+    # draw a line
+    context.set_line_width(1)
+    context.move_to(line_start_x, line_start_y) 
+    context.line_to(line_end_x, line_end_y)
+    context.stroke()
+
+    rect_start_x = exon_start  
+    rect_start_y = line_start_y - 10
+    rect_length = exon_length 
+    rect_width = 20
+
+    # draw a rectangle
+    context.rectangle(rect_start_x, rect_start_y, exon_length, rect_width)
+    context.fill()
+
+    line_start_y += 50 
+
+surface.write_to_png('seq.png')
+surface.finish()

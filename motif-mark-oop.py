@@ -143,12 +143,12 @@ for i in seq_objs:
     exon_start = i.exon_start
     exon_length = i.exon_length
 
-    #seq_length = 500
-    #exon_start = 100
-    #exon_length = 60
-
     line_end_x = seq_length + line_start_x 
     line_end_y = line_start_y 
+
+    # headers
+    context.move_to(line_start_x, line_start_y - 15)
+    context.show_text(i.header)
 
     # draw a line
     context.set_line_width(1)

@@ -43,8 +43,9 @@ class Sequence:
 
         self.header = header
         self.sequence = sequence
-        self.exon_start = ""
-        self.exon_length = ""
+        self.exon_start = 0
+        self.exon_length = 0
+        self.find_exon()
     
     def find_exon(self):
         start = 0
@@ -132,7 +133,8 @@ for i in motif_objs:
 
 
 # draw 
-surface = cairo.SVGSurface("seq.svg", 1000, 1000)
+surface_height = len(seq_objs)*100
+surface = cairo.SVGSurface("seq.svg", 1100, surface_height)
 context = cairo.Context(surface)
 
 line_start_x = 50
@@ -186,6 +188,7 @@ for seq in seq_objs:
         c += 1
 
     line_start_y += 50 
+
 
 surface.write_to_png('seq.png')
 surface.finish()

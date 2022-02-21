@@ -19,6 +19,7 @@ class Motif:
 
         self.motif = motif.lower()
         self.motif_regex = self.get_regex()
+        self.color = ""
 
     def get_regex(self):
         """This function takes takes the motif string and generates the regex expression to search for it."""
@@ -107,7 +108,7 @@ motifs = args.motifs
 ol_output = "OL_" + fasta
 Bioinfo.oneLineFasta(fasta, ol_output)
 
-# will contain sequence objects, what should key be?
+# read in list of Sequence objects
 seq_objs = []
 header = ""
 with open(ol_output, "r") as fr:
@@ -125,26 +126,26 @@ with open(motifs, "r") as fr:
         line = line.strip()
         motif_objs.append(Motif(line))
 
-'''
-for i in motif_objs:
-    print(i.motif_regex)
-    print(i.find_motif(seq_objs[0]))
-'''
+
+
+out_filename = fasta.split('.')[0]
+
 
 
 # draw 
 surface_height = len(seq_objs)*100
-surface = cairo.SVGSurface("seq.svg", 1100, surface_height)
+surface = cairo.SVGSurface(out_filename + ".svg", 1100, surface_height)
 context = cairo.Context(surface)
 
-line_start_x = 50
+line_start_x = 15
 line_start_y = 100 
 
 for seq in seq_objs:
     
     # add header text
     context.set_source_rgb(0, 0, 0)
-    context.move_to(line_start_x, line_start_y - 15)
+    context.set_font_size(13)
+    context.move_to(line_start_x, line_start_y - 20)
     context.show_text(seq.header)
 
     # draw sequence line
@@ -172,23 +173,35 @@ for seq in seq_objs:
 
     # draw motifs 
     colors = np.array([(189,69,71), (71,122,198), (69,150,62), (214,145,33), (151,79,176)])/255
-    c = 0
-    context.set_source_rgb(colors[c][0],colors[c][1],colors[c][2])
 
-    for m in motif_objs:
+    for c,m in enumerate(motif_objs):
         positions = m.find_motif(seq)
+        m.color = colors[c]
         print(seq.header)
         print(m.motif)
         print(positions)
-
+        context.set_source_rgb(m.color[0], m.color[1], m.color[2])
         for p in positions:     
             context.rectangle(line_start_x + p, rect_start_y, len(m.motif), rect_width)
             context.fill()
-        context.set_source_rgb(colors[c][0],colors[c][1],colors[c][2])
-        c += 1
+    line_start_y += 60 
 
-    line_start_y += 50 
+# make legend
+leg_pos_x = 15 
+leg_pos_y = 40
+context.move_to(leg_pos_x, leg_pos_y)   
+context.set_source_rgb(0, 0, 0)
+context.set_font_size(13)
+context.select_font_face("Courier", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+context.show_text("Motifs:")
+leg_pos_x += 60
+for m in motif_objs:
+    context.rectangle(leg_pos_x, leg_pos_y - 11, 15, 15) 
+    context.set_source_rgb(m.color[0], m.color[1], m.color[2])
+    context.fill()
+    context.move_to(leg_pos_x + 20, leg_pos_y)   
+    context.show_text(m.motif)
+    leg_pos_x += 100
 
-
-surface.write_to_png('seq.png')
+surface.write_to_png(out_filename + '.png')
 surface.finish()

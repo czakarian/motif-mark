@@ -8,32 +8,19 @@ from asyncio import start_server
 from curses.ascii import islower
 import Bioinfo
 import cairo
-import itertools
 import re 
+import numpy as np
 
 iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt'}
-
-class Exon:
-    def __init__(self, start, end):
-        '''This is how an Exon is made.'''       
-        self.start = start
-        self.end = end 
-
-    def get_start(self):
-        return self.start
-    
-    def get_end(self):
-        return self.end
 
 class Motif:
     def __init__(self, motif):
         '''This is how a Motif is made.'''
 
         self.motif = motif.lower()
-        self.motif_regex = self.__get_regex()
-        self.color = 'red'
+        self.motif_regex = self.get_regex()
 
-    def __get_regex(self):
+    def get_regex(self):
         """This function takes takes the motif string and generates the regex expression to search for it."""
         regex_str = ""
         for c in self.motif:
@@ -58,7 +45,6 @@ class Sequence:
         self.sequence = sequence
         self.exon_start = ""
         self.exon_length = ""
-        self.exon_coords = self.find_exon()
     
     def find_exon(self):
         start = 0
@@ -74,14 +60,31 @@ class Sequence:
             elif(c.islower() and start_found and not end_found):
                 end = i - 1
                 end_found = True       
-        self.exon = Exon(start, end)
         self.exon_start = start
         self.exon_length = end - start 
 
 class Draw:
-    def __init__(self):
+    def __init__(self, seqs):
         ''''''
-        self.seqs = []
+        self.seqs = seqs
+
+        self.surface = cairo.SVGSurface("seq.svg", 1000, 1000)
+        self.context = cairo.Context(surface)
+
+        self.line_start_x = 50
+        self.line_start_y = 100 
+
+    def draw_header(self):
+        pass
+
+    def draw_lines(self):
+        print("hi")
+
+    def draw_exons(self):
+        print("hi")
+
+    def draw_motifs(self):
+        print("hi")
 
     def generate_image(self):
         print("hi")
@@ -114,9 +117,6 @@ with open(ol_output, "r") as fr:
         else:
             seq_objs.append(Sequence(header, line))
 
-for i in seq_objs:
-    print(i.header)
-
 # read in list of motifs
 motif_objs = []
 with open(motifs, "r") as fr:
@@ -124,46 +124,66 @@ with open(motifs, "r") as fr:
         line = line.strip()
         motif_objs.append(Motif(line))
 
+'''
 for i in motif_objs:
     print(i.motif_regex)
     print(i.find_motif(seq_objs[0]))
-
+'''
 
 
 # draw 
 surface = cairo.SVGSurface("seq.svg", 1000, 1000)
 context = cairo.Context(surface)
 
-
 line_start_x = 50
 line_start_y = 100 
 
-for i in seq_objs:
-    seq_length = len(i.sequence)
-    exon_start = i.exon_start
-    exon_length = i.exon_length
+for seq in seq_objs:
+    
+    # add header text
+    context.set_source_rgb(0, 0, 0)
+    context.move_to(line_start_x, line_start_y - 15)
+    context.show_text(seq.header)
 
+    # draw sequence line
+    seq_length = len(seq.sequence)
     line_end_x = seq_length + line_start_x 
     line_end_y = line_start_y 
 
-    # headers
-    context.move_to(line_start_x, line_start_y - 15)
-    context.show_text(i.header)
-
-    # draw a line
+    context.set_source_rgb(0, 0, 0)
     context.set_line_width(1)
     context.move_to(line_start_x, line_start_y) 
     context.line_to(line_end_x, line_end_y)
     context.stroke()
 
+    # draw exon
+    exon_start = seq.exon_start
+    exon_length = seq.exon_length
     rect_start_x = exon_start  
     rect_start_y = line_start_y - 10
     rect_length = exon_length 
     rect_width = 20
 
-    # draw a rectangle
+    context.set_source_rgb(0, 0, 0)
     context.rectangle(rect_start_x, rect_start_y, exon_length, rect_width)
     context.fill()
+
+    # draw motifs 
+    colors = np.array([(189,69,71), (71,122,198), (69,150,62), (214,145,33), (151,79,176)])/255
+    c = 0
+    context.set_source_rgb(colors[c][0],colors[c][1],colors[c][2])
+
+    for m in motif_objs:
+        positions = m.find_motif(seq)
+        print(seq.header)
+        print(m.motif)
+        print(positions)
+
+        for p in positions:     
+            context.rectangle(line_start_x + p, rect_start_y, len(m.motif), rect_width)
+            context.fill()
+        context.set_source_rgb(colors[c][0],colors[c][1],colors[c][2])
+        c += 1
 
     line_start_y += 50 
 

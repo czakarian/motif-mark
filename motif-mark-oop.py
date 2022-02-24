@@ -74,33 +74,6 @@ class Sequence:
                 end_found = True       
         self.exon_start = start
         self.exon_length = end - start 
-
-class Draw:
-    def __init__(self, seqs):
-        ''''''
-        self.seqs = seqs
-
-        self.surface = cairo.SVGSurface("seq.svg", 1000, 1000)
-        self.context = cairo.Context(surface)
-
-        self.line_start_x = 50
-        self.line_start_y = 100 
-
-    def draw_header(self):
-        pass
-
-    def draw_lines(self):
-        print("hi")
-
-    def draw_exons(self):
-        print("hi")
-
-    def draw_motifs(self):
-        print("hi")
-
-    def generate_image(self):
-        print("hi")
-
     
 def get_args():
     """This function returns the parser arguments entered in command line"""

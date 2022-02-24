@@ -4,6 +4,7 @@
 the locations of each motif throughout a gene sequence. """
 
 import argparse
+from ast import Pass
 from asyncio import start_server
 from curses.ascii import islower
 import Bioinfo
@@ -47,6 +48,15 @@ class Sequence:
         self.exon_start = 0
         self.exon_length = 0
         self.find_exon()
+        self.format_header()
+
+    def format_header(self):
+        header_parts = self.header.split()
+        gene = header_parts[0][1:]
+        chr = header_parts[1].split(":")[0].split("chr")[1]
+        pos = header_parts[1].split(":")[1]
+        self.header = gene + " chromosome " + chr + " (" + pos + ")"
+        
     
     def find_exon(self):
         start = 0
@@ -188,7 +198,7 @@ for seq in seq_objs:
 
 # make legend
 leg_pos_x = 15 
-leg_pos_y = 40
+leg_pos_y = 45
 context.move_to(leg_pos_x, leg_pos_y)   
 context.set_source_rgb(0, 0, 0)
 context.set_font_size(13)

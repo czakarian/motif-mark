@@ -17,7 +17,6 @@ iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b'
 class Motif:
     def __init__(self, motif):
         '''This is how a Motif is made.'''
-
         self.motif = motif.lower()
         self.motif_regex = self.get_regex()
         self.color = ""
@@ -42,7 +41,6 @@ class Motif:
 class Sequence:
     def __init__(self, header, sequence):
         '''This is how a Sequence is made.'''
-
         self.header = header
         self.sequence = sequence
         self.exon_start = 0
@@ -51,14 +49,15 @@ class Sequence:
         self.format_header()
 
     def format_header(self):
+        """This function takes in the fasta header and reformats it [genename chromosome x (xxx - xxx)]"""
         header_parts = self.header.split()
         gene = header_parts[0][1:]
         chr = header_parts[1].split(":")[0].split("chr")[1]
         pos = header_parts[1].split(":")[1]
         self.header = gene + " chromosome " + chr + " (" + pos + ")"
         
-    
     def find_exon(self):
+        """This function uses the fasta sequence to set the exon start location and length of the exon."""
         start = 0
         end = 0 
         start_found = False
@@ -87,11 +86,14 @@ args = get_args()
 fasta= args.fasta
 motifs = args.motifs
 
+# get the filename without extension to generate output filename
+out_filename = fasta.split('.')[0]
+
 # turn multiline fasta sequences in one-liners
 ol_output = "OL_" + fasta
 Bioinfo.oneLineFasta(fasta, ol_output)
 
-# read in list of Sequence objects
+# parse fasta and generate list of Sequence objects
 seq_objs = []
 header = ""
 with open(ol_output, "r") as fr:
@@ -102,18 +104,12 @@ with open(ol_output, "r") as fr:
         else:
             seq_objs.append(Sequence(header, line))
 
-# read in list of motifs
+# parse motif file and generate list of Motif objects
 motif_objs = []
 with open(motifs, "r") as fr:
     for line in fr:
         line = line.strip()
         motif_objs.append(Motif(line))
-
-
-
-out_filename = fasta.split('.')[0]
-
-
 
 # draw 
 surface_height = len(seq_objs)*100
@@ -124,7 +120,6 @@ line_start_x = 15
 line_start_y = 100 
 
 for seq in seq_objs:
-    
     # add header text
     context.set_source_rgb(0, 0, 0)
     context.set_font_size(13)

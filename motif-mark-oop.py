@@ -80,23 +80,23 @@ class MotifMark:
 
         self.fasta = fasta
         self.motifs = motifs
-        self.seq_objs = []
-        self.get_seq_objs()
-        self.motif_objs = []
-        self.get_motif_objs()
+        self.seq_objs = self.get_seq_objs()
+        self.motif_objs = self.get_motif_objs()       
 
-        self.surface = cairo.SVGSurface("seq.svg", 1000, 1000)
+        self.surface = cairo.SVGSurface("seq.svg", 1100, len(self.seq_objs)*100)
         self.context = cairo.Context(self.surface)
-        self.line_start_x = 50
+        self.line_start_x = 15
         self.line_start_y = 100 
+
 
     def get_seq_objs(self):
         # parse fasta and generate list of Sequence objects
         
         # turn multiline fasta seqs into one-liners 
         ol_output = "OL_" + fasta
-        Bioinfo.oneLineFasta(fasta, ol_output)    
+        Bioinfo.oneLineFasta(fasta, ol_output)  
 
+        seq_objs = []
         header = ""
         with open(ol_output, "r") as fr:
             for line in fr:
@@ -104,14 +104,18 @@ class MotifMark:
                 if line[0] == ">":
                     header = line
                 else:
-                    self.seq_objs.append(Sequence(header, line))
+                    seq_objs.append(Sequence(header, line))
+        return seq_objs
 
     def get_motif_objs(self):
         # parse motif file and generate list of Motif objects
+        motif_objs = []
         with open(motifs, "r") as fr:
             for line in fr:
                 line = line.strip()
-                self.motif_objs.append(Motif(line))
+                motif_objs.append(Motif(line))
+        return motif_objs
+        
  
     def draw_header(self, seq):
         """This function..."""
@@ -139,9 +143,9 @@ class MotifMark:
         exon_start = seq.exon_start
         exon_length = seq.exon_length
         rect_start_x = exon_start  
-        rect_start_y = self.line_start_y - 10
+        rect_start_y = self.line_start_y - 7
         rect_length = exon_length 
-        rect_width = 20
+        rect_width = 14
 
         self.context.set_source_rgb(0, 0, 0)
         self.context.rectangle(rect_start_x, rect_start_y, exon_length, rect_width)
@@ -166,7 +170,7 @@ class MotifMark:
 
     def draw_legend(self):
         # make legend
-        leg_pos_x = 50 
+        leg_pos_x = 15
         leg_pos_y = 45
         self.context.move_to(leg_pos_x, leg_pos_y)   
         self.context.set_source_rgb(0, 0, 0)
@@ -207,7 +211,6 @@ def get_args():
 args = get_args()
 fasta= args.fasta
 motifs = args.motifs
-
 
 
 mm = MotifMark(fasta, motifs)

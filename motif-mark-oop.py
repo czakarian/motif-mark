@@ -13,6 +13,7 @@ import re
 import numpy as np
 
 iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt'}
+colors = np.array([(189,69,71), (71,122,198), (69,150,62), (214,145,33), (151,79,176)])/255
 
 class Motif:
     def __init__(self, motif):
@@ -88,9 +89,8 @@ class MotifMark:
         self.line_start_x = 15
         self.line_start_y = 100 
 
-
     def get_seq_objs(self):
-        # parse fasta and generate list of Sequence objects
+        """This function parses the fasta file and generates a list of Sequence objects"""
         
         # turn multiline fasta seqs into one-liners 
         ol_output = "OL_" + fasta
@@ -108,7 +108,7 @@ class MotifMark:
         return seq_objs
 
     def get_motif_objs(self):
-        # parse motif file and generate list of Motif objects
+        """This function parses the motif file and generates a list of Motif objects"""
         motif_objs = []
         with open(motifs, "r") as fr:
             for line in fr:
@@ -116,17 +116,15 @@ class MotifMark:
                 motif_objs.append(Motif(line))
         return motif_objs
         
- 
     def draw_header(self, seq):
-        """This function..."""
+        """This function draws the header for a Sequence object"""
         self.context.set_source_rgb(0, 0, 0)
         self.context.set_font_size(13)
         self.context.move_to(self.line_start_x, self.line_start_y - 20)
         self.context.show_text(seq.header)
 
     def draw_line(self, seq):
-        """This function..."""
-        # draw sequence line
+        """This function draws the sequence line for a Sequence object"""
         seq_length = len(seq.sequence)
         line_end_x = seq_length + self.line_start_x 
         line_end_y = self.line_start_y 
@@ -138,8 +136,7 @@ class MotifMark:
         self.context.stroke()
 
     def draw_exon(self, seq):
-        """This function..."""
-        # draw exon
+        """This function draws the exon rectange for a Sequence objects"""
         exon_start = seq.exon_start
         exon_length = seq.exon_length
         rect_start_x = exon_start  
@@ -152,9 +149,7 @@ class MotifMark:
         self.context.fill()
 
     def draw_motifs(self, seq):
-        """This function..."""
-
-        colors = np.array([(189,69,71), (71,122,198), (69,150,62), (214,145,33), (151,79,176)])/255
+        """This function draws out the motifs for a Sequence objects"""
 
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
@@ -169,7 +164,7 @@ class MotifMark:
         self.line_start_y += 60 
 
     def draw_legend(self):
-        # make legend
+        """This function draws the legend with labeled motifs"""
         leg_pos_x = 15
         leg_pos_y = 45
         self.context.move_to(leg_pos_x, leg_pos_y)   
@@ -187,7 +182,8 @@ class MotifMark:
             leg_pos_x += 100
 
     def generate_image(self):
-        """This function ..."""  
+        """This function iterates through the Sequence objects, draws each of the components (header, line, exon, motifs, legend)
+        and ouputs the finished .png image."""  
         for s in self.seq_objs:
             self.draw_header(s)
             self.draw_line(s)

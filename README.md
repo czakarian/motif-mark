@@ -33,6 +33,6 @@ Motifs:
 >YYYYYYYYYY
 
 ### Output
-The program will output a single image (.png) containing each of the inputted sequences with labeled features (motifs, introns, exons) to scale depending on length as is shown in the example figure below. Exons are indicated by the black boxes and introns are indicated by the grey line.
+The program will output a single image (.png) containing each of the inputted sequences with motifs, introns, and exons to scale depending on their lengths. An example of the output can be seen below where exons are indicated by the black boxes and introns are indicated by the grey line.
 
 ![Example Output](Figure_1.png)

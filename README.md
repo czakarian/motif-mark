@@ -14,10 +14,6 @@ Given a a list of gene sequences and motifs, this program will produce an image 
     -f, --fasta: required arg, file path to FASTA file
     -m, --motifs: required arg, file path to motif text file
 
-#### Example of how to run the program:
-```
-python motif-mark-oop.py -f Figure_1.dnas -m Fig_1_motifs.txt 
-```
 ### How to format input files:
 
 FASTA:
@@ -31,6 +27,11 @@ Motifs:
 >GCAUG\
 >catag\
 >YYYYYYYYYY
+
+### Example of how to run the program:
+```
+python motif-mark-oop.py -f Figure_1.dnas -m Fig_1_motifs.txt 
+```
 
 ### Output
 The program will output a single image (.png) containing each of the inputted sequences with motifs, introns, and exons to scale depending on their lengths. An example of the output can be seen below where exons are indicated by the black boxes and introns are indicated by the grey line.

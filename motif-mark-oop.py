@@ -35,9 +35,12 @@ class Motif:
     def find_motif(self, Sequence):
         """This function takes a Sequence object and returns a list of the positions of the motif in the given sequence."""
         positions = []
-        for match in re.finditer(self.motif_regex, Sequence.sequence):
+        pattern = re.compile(self.motif_regex)
+        match = pattern.search(Sequence.sequence)
+        while match:
             positions.append(match.start())
-        return positions 
+            match = pattern.search(Sequence.sequence, match.start() + 1) # takes care of overlaps 
+        return positions
 
 class Sequence:
     def __init__(self, header, sequence):
@@ -153,8 +156,8 @@ class MotifMark:
             positions = m.find_motif(seq)
             m.color = colors[c]
             print(seq.header)
-            print(m.motif)
-            print(positions)
+            #print(m.motif)
+            #print(positions)
             self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
             for p in positions:     
                 self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)

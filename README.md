@@ -15,4 +15,6 @@ Given a a list of gene sequences and motifs, this program will produce figures t
     -m, --motifs: required arg, file path to motif text file
 
 ### Output
-The program will output a single image (.png) per FASTA file containing each of the inputted sequences with labeled features (motifs, introns, exons) to scale
+The program will output a single image (.png) per FASTA file containing each of the inputted sequences with labeled features (motifs, introns, exons) to scale as shown in the example figure below.
+
+![Example Output](Figure_1.png)

@@ -14,6 +14,10 @@ Given a a list of gene sequences and motifs, this program will produce an image 
     -f, --fasta: required arg, file path to FASTA file
     -m, --motifs: required arg, file path to motif text file
 
+#### Example of how to run the program:
+```
+python motif-mark-oop.py -f Figure_1.dnas -m Fig_1_motifs.txt 
+```
 ### Example Input Files:
 
 FASTA:

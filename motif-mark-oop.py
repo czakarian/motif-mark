@@ -87,10 +87,10 @@ class MotifMark:
         self.seq_objs = self.get_seq_objs()
         self.motif_objs = self.get_motif_objs()       
 
-        self.surface = cairo.SVGSurface("seq.svg", 1100, len(self.seq_objs)*100)
+        self.surface = cairo.SVGSurface(fasta.split('.')[0] + ".svg", 1100, len(self.seq_objs)*100)
         self.context = cairo.Context(self.surface)
         self.draw_position_x = 15
-        self.draw_position_y = 100 
+        self.draw_position_y = 85
 
     def get_seq_objs(self):
         """This function parses the fasta file and generates a list of Sequence objects"""
@@ -151,7 +151,6 @@ class MotifMark:
 
     def draw_motifs(self, seq):
         """This function draws out the motifs for a Sequence objects"""
-
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
             m.color = colors[c]
@@ -166,21 +165,40 @@ class MotifMark:
 
     def draw_legend(self):
         """This function draws the legend with labeled motifs"""
-        leg_pos_x = 15
-        leg_pos_y = 45
+        start_leg_pos_x = 20
+        start_leg_pos_y = 30
+        leg_pos_x = 20
+        leg_pos_y = 30
         self.context.move_to(leg_pos_x, leg_pos_y)   
         self.context.set_source_rgb(0, 0, 0)
         self.context.set_font_size(13)
-        self.context.select_font_face("Courier", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        self.context.select_font_face("Arial", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         self.context.show_text("Motifs:")
-        leg_pos_x += 60
+        leg_pos_x += 50
         for m in self.motif_objs:
             self.context.rectangle(leg_pos_x, leg_pos_y - 11, 15, 15) 
             self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
             self.context.fill()
             self.context.move_to(leg_pos_x + 20, leg_pos_y)   
             self.context.show_text(m.motif)
-            leg_pos_x += 100
+            leg_pos_x += len(m.motif) * 7 + 30
+
+        # draw box around the legend
+        self.context.set_line_width(0.5)
+        self.context.set_source_rgb(0, 0, 0)
+        self.context.move_to(start_leg_pos_x - 5, start_leg_pos_y - 15) 
+        self.context.line_to(leg_pos_x, start_leg_pos_y - 15)
+        self.context.stroke()
+        self.context.move_to(start_leg_pos_x - 5, start_leg_pos_y + 10) 
+        self.context.line_to(leg_pos_x, start_leg_pos_y + 10)
+        self.context.stroke()
+        self.context.move_to(start_leg_pos_x - 5, start_leg_pos_y - 15) 
+        self.context.line_to(start_leg_pos_x - 5, start_leg_pos_y + 10)
+        self.context.stroke()
+        self.context.move_to(leg_pos_x, start_leg_pos_y - 15) 
+        self.context.line_to(leg_pos_x, start_leg_pos_y + 10)
+        self.context.stroke()
+        
 
     def generate_image(self):
         """This function iterates through the Sequence objects, draws each of the components (header, line, exon, motifs, legend)
@@ -192,8 +210,7 @@ class MotifMark:
             self.draw_motifs(s)
         self.draw_legend()   
    
-        out_filename = fasta.split('.')[0]
-        self.surface.write_to_png(out_filename + '.png')
+        self.surface.write_to_png(fasta.split('.')[0] + '.png')
         self.surface.finish()
 
 

@@ -12,7 +12,7 @@ import cairo
 import re 
 import numpy as np
 
-iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt'}
+iupac_symbols = {'w':'at', 's':'cg', 'm':'ac', 'k':'gt', 'r':'ag', 'y':'ct', 'b':'cgt', 'd':'agt', 'h':'act', 'v':'acg', 'n':'acgt', 'u':'t'}
 colors = np.array([(189,69,71), (71,122,198), (69,150,62), (214,145,33), (151,79,176)])/255
 
 class Motif:
@@ -86,8 +86,8 @@ class MotifMark:
 
         self.surface = cairo.SVGSurface("seq.svg", 1100, len(self.seq_objs)*100)
         self.context = cairo.Context(self.surface)
-        self.line_start_x = 15
-        self.line_start_y = 100 
+        self.draw_position_x = 15
+        self.draw_position_y = 100 
 
     def get_seq_objs(self):
         """This function parses the fasta file and generates a list of Sequence objects"""
@@ -120,32 +120,30 @@ class MotifMark:
         """This function draws the header for a Sequence object"""
         self.context.set_source_rgb(0, 0, 0)
         self.context.set_font_size(13)
-        self.context.move_to(self.line_start_x, self.line_start_y - 20)
+        self.context.move_to(self.draw_position_x, self.draw_position_y - 20)
         self.context.show_text(seq.header)
 
     def draw_line(self, seq):
         """This function draws the sequence line for a Sequence object"""
         seq_length = len(seq.sequence)
-        line_end_x = seq_length + self.line_start_x 
-        line_end_y = self.line_start_y 
+        line_end_x = seq_length + self.draw_position_x 
+        line_end_y = self.draw_position_y 
 
         self.context.set_source_rgb(0, 0, 0)
         self.context.set_line_width(1)
-        self.context.move_to(self.line_start_x, self.line_start_y) 
+        self.context.move_to(self.draw_position_x, self.draw_position_y) 
         self.context.line_to(line_end_x, line_end_y)
         self.context.stroke()
 
     def draw_exon(self, seq):
         """This function draws the exon rectange for a Sequence objects"""
-        exon_start = seq.exon_start
-        exon_length = seq.exon_length
-        rect_start_x = exon_start  
-        rect_start_y = self.line_start_y - 7
-        rect_length = exon_length 
+        rect_start_x = seq.exon_start  
+        rect_start_y = self.draw_position_y - 7
+        rect_length = seq.exon_length 
         rect_width = 14
 
         self.context.set_source_rgb(0, 0, 0)
-        self.context.rectangle(rect_start_x, rect_start_y, exon_length, rect_width)
+        self.context.rectangle(rect_start_x, rect_start_y, rect_length, rect_width)
         self.context.fill()
 
     def draw_motifs(self, seq):
@@ -159,9 +157,9 @@ class MotifMark:
             print(positions)
             self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
             for p in positions:     
-                self.context.rectangle(self.line_start_x + p, self.line_start_y - 10, len(m.motif), 20)
+                self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)
                 self.context.fill()
-        self.line_start_y += 60 
+        self.draw_position_y += 60 
 
     def draw_legend(self):
         """This function draws the legend with labeled motifs"""

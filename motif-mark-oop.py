@@ -158,9 +158,6 @@ class MotifMark:
         """This function draws out the motifs for a Sequence objects"""
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
-            print(seq.header)
-            print(m.motif)
-            print(positions)
             m.set_color(colors[c])
             self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.75)
             for p in positions:     
@@ -182,7 +179,7 @@ class MotifMark:
         leg_pos_x += 50
         for m in self.motif_objs:
             self.context.rectangle(leg_pos_x, leg_pos_y - 11, 15, 15) 
-            self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
+            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.75)
             self.context.fill()
             self.context.move_to(leg_pos_x + 20, leg_pos_y)   
             self.context.show_text(m.motif)

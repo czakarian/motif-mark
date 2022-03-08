@@ -154,9 +154,6 @@ class MotifMark:
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
             m.color = colors[c]
-            print(seq.header)
-            #print(m.motif)
-            #print(positions)
             self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
             for p in positions:     
                 self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)

@@ -36,11 +36,16 @@ class Motif:
         """This function takes a Sequence object and returns a list of the positions of the motif in the given sequence."""
         positions = []
         pattern = re.compile(self.motif_regex)
-        match = pattern.search(Sequence.sequence)
+        match = pattern.search(Sequence.sequence.lower())
         while match:
             positions.append(match.start())
-            match = pattern.search(Sequence.sequence, match.start() + 1) # takes care of overlaps 
+            match = pattern.search(Sequence.sequence.lower(), match.start() + 1) # takes care of overlaps 
         return positions
+
+    def set_color(self, color):
+        """This function sets the color of the motif for drawingg."""
+        self.color = color
+
 
 class Sequence:
     def __init__(self, header, sequence):
@@ -139,8 +144,8 @@ class MotifMark:
         self.context.stroke()
 
     def draw_exon(self, seq):
-        """This function draws the exon rectange for a Sequence objects"""
-        rect_start_x = seq.exon_start  
+        """This function draws the exon rectangle for a Sequence objects"""
+        rect_start_x = self.draw_position_x + seq.exon_start 
         rect_start_y = self.draw_position_y - 7
         rect_length = seq.exon_length 
         rect_width = 14
@@ -153,8 +158,11 @@ class MotifMark:
         """This function draws out the motifs for a Sequence objects"""
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
-            m.color = colors[c]
-            self.context.set_source_rgb(m.color[0], m.color[1], m.color[2])
+            print(seq.header)
+            print(m.motif)
+            print(positions)
+            m.set_color(colors[c])
+            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.5)
             for p in positions:     
                 self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)
                 self.context.fill()
@@ -223,6 +231,6 @@ args = get_args()
 fasta= args.fasta
 motifs = args.motifs
 
-
+# create MotifMark object with fasta and motif file as inputs and generate the output image 
 mm = MotifMark(fasta, motifs)
 mm.generate_image()

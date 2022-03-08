@@ -162,7 +162,7 @@ class MotifMark:
             print(m.motif)
             print(positions)
             m.set_color(colors[c])
-            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.5)
+            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.75)
             for p in positions:     
                 self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)
                 self.context.fill()

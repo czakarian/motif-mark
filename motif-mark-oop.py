@@ -92,10 +92,18 @@ class MotifMark:
         self.seq_objs = self.get_seq_objs()
         self.motif_objs = self.get_motif_objs()       
 
-        self.surface = cairo.SVGSurface(fasta.split('.')[0] + ".svg", 1100, len(self.seq_objs)*100)
+        self.surface = cairo.SVGSurface(fasta.split('.')[0] + ".svg", self.max_seq_len() + 25, len(self.seq_objs)*80)
         self.context = cairo.Context(self.surface)
         self.draw_position_x = 15
         self.draw_position_y = 85
+
+    def max_seq_len(self):
+        """This function returns the length of the longest Sequence object."""
+        max_len = len(self.seq_objs[0].sequence)
+        for s in self.seq_objs:
+            if max_len < len(s.sequence):
+                max_len = len(s.sequence)
+        return max_len         
 
     def get_seq_objs(self):
         """This function parses the fasta file and generates a list of Sequence objects"""
@@ -159,7 +167,7 @@ class MotifMark:
         for c,m in enumerate(self.motif_objs):
             positions = m.find_motif(seq)
             m.set_color(colors[c])
-            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.75)
+            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.6)
             for p in positions:     
                 self.context.rectangle(self.draw_position_x + p, self.draw_position_y - 10, len(m.motif), 20)
                 self.context.fill()
@@ -179,7 +187,7 @@ class MotifMark:
         leg_pos_x += 50
         for m in self.motif_objs:
             self.context.rectangle(leg_pos_x, leg_pos_y - 11, 15, 15) 
-            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.75)
+            self.context.set_source_rgba(m.color[0], m.color[1], m.color[2], 0.6)
             self.context.fill()
             self.context.move_to(leg_pos_x + 20, leg_pos_y)   
             self.context.show_text(m.motif)
